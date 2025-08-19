@@ -6,6 +6,8 @@ import { compress } from "hono/compress";
 
 import { errorHandler, notFound } from "./middlewares";
 import schools from "./routes/schools.route";
+import districts from "./routes/districts.route";
+import blocks from "./routes/blocks.route";
 import { auth } from "./config";
 
 const app = new Hono<{
@@ -44,6 +46,8 @@ app.all("/api/auth/*", async (c) => {
 });
 
 app.route(API_BASE + "/schools", schools);
+app.route(API_BASE + "/districts", districts);
+app.route(API_BASE + "/blocks", blocks);
 
 app.onError(errorHandler);
 app.notFound(notFound);
