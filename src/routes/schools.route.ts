@@ -5,6 +5,6 @@ import { isState } from "../middlewares";
 
 const schools = new Hono();
 
-schools.get("/", isState, getAllSchools);
+schools.get("/", getAllSchools);
 
 export default schools;

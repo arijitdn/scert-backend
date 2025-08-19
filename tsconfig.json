@@ -26,6 +26,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "prisma/extract_blocks.ts"],
   "exclude": ["node_modules", "dist", "node_modules/**/*"]
 }

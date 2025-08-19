@@ -21,6 +21,17 @@ enum RequisitionStatus {
   REJECTED
 }
 
+enum District {
+  DHALAI
+  GOMATI
+  KHOWAI
+  NORTH_TRIPURA
+  SEPAHIJALA
+  SOUTH_TRIPURA
+  UNAKOTI
+  WEST_TRIPURA
+}
+
 model School {
   id            String @id @default(cuid())
   name          String
@@ -33,6 +44,7 @@ model School {
   management    String
   type          String
 
+  Block           Block?            @relation(fields: [block_code], references: [code])
   ClassEnrollment ClassEnrollment[]
   Requisition     Requisition[]
   Stock           Stock[]
@@ -106,4 +118,14 @@ model Stock {
 
   school School @relation(fields: [userId], references: [id])
   book   Book   @relation(fields: [bookId], references: [id])
+}
+
+model Block {
+  id       String   @id @default(cuid())
+  name     String
+  code     Int      @unique
+  district District
+  phone    String
+  password String
+  schools  School[]
 }

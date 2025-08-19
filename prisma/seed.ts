@@ -1,8 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import * as fs from "fs";
 import * as path from "path";
+import readline from "readline";
 
 const prisma = new PrismaClient();
+
+interface BlockInfo {
+  block_code: string;
+  block_name: string;
+  district_name: string;
+}
 
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
@@ -26,6 +33,89 @@ function parseCSVLine(line: string): string[] {
   return result;
 }
 
+async function extractBlocks(csvPath: string) {
+  console.log("Extracting blocks from CSV...");
+  const fileStream = fs.createReadStream(csvPath);
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity,
+  });
+  const seen = new Set<string>();
+  const blocks: BlockInfo[] = [];
+  let isHeader = true;
+  for await (const line of rl) {
+    if (isHeader) {
+      isHeader = false;
+      continue;
+    }
+    const cols = line.split(",");
+    if (cols.length < 4) continue;
+    let district = (cols[1] ?? "")
+      .trim()
+      .replace(/\s+/g, "_")
+      .replace(/_+/g, "_")
+      .toUpperCase();
+    let block_code = (cols[2] ?? "").trim();
+    let block_name = (cols[3] ?? "").trim().replace(/\s+/g, " ");
+    const key = `${block_code}|${block_name}|${district}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      blocks.push({ block_code, block_name, district_name: district });
+    }
+  }
+
+  // Ensure all block codes referenced in school_list.csv are present
+  const schoolStream = fs.createReadStream(csvPath);
+  const schoolRl = readline.createInterface({
+    input: schoolStream,
+    crlfDelay: Infinity,
+  });
+  let isSchoolHeader = true;
+  for await (const line of schoolRl) {
+    if (isSchoolHeader) {
+      isSchoolHeader = false;
+      continue;
+    }
+    const cols = line.split(",");
+    if (cols.length < 4) continue;
+    let district = (cols[1] ?? "")
+      .trim()
+      .replace(/\s+/g, "_")
+      .replace(/_+/g, "_")
+      .toUpperCase();
+    let block_code = (cols[2] ?? "").trim();
+    let block_name = (cols[3] ?? "").trim().replace(/\s+/g, " ");
+    const key = `${block_code}|${block_name}|${district}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      blocks.push({ block_code, block_name, district_name: district });
+    }
+  }
+
+  // Insert blocks into DB
+  for (const b of blocks) {
+    try {
+      await prisma.block.upsert({
+        where: { code: Number(b.block_code) },
+        update: {
+          name: b.block_name,
+          district: b.district_name as any,
+        },
+        create: {
+          code: Number(b.block_code),
+          name: b.block_name,
+          district: b.district_name as any,
+          phone: "",
+          password: "",
+        },
+      });
+    } catch (err) {
+      console.error(`Error inserting block ${b.block_code}:`, err);
+    }
+  }
+  console.log("Block data import complete.");
+}
+
 async function main() {
   console.log("Starting to seed the database...");
 
@@ -40,6 +130,10 @@ async function main() {
 
   // Clear existing data
   console.log("Clearing existing school data...");
+
+  // Extract Blocks
+  extractBlocks(csvPath);
+
   await prisma.school.deleteMany();
 
   // Process each line (skip header)
