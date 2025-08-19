@@ -1,0 +1,54 @@
+import "./config/compress.config";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { compress } from "hono/compress";
+
+import { errorHandler, notFound } from "./middlewares";
+import schools from "./routes/schools.route";
+import { auth } from "./config";
+
+const app = new Hono<{
+  Variables: {
+    user: typeof auth.$Infer.Session.user | null;
+    session: typeof auth.$Infer.Session.session | null;
+  };
+}>({ strict: false });
+
+const port = process.env.PORT || 3000;
+const API_BASE = process.env.API_BASE || "/api/v1";
+
+app.use(logger());
+app.use(
+  compress({
+    encoding: "gzip",
+  })
+);
+app.use(
+  "*",
+  cors({
+    origin: ["http://localhost:5173", "https://scert.arijit.dev"],
+    credentials: true,
+    maxAge: 86400,
+  })
+);
+
+app.get("/", (c) => {
+  return c.json({
+    message: "Welcome to SCERT Backend API",
+  });
+});
+
+app.all("/api/auth/*", async (c) => {
+  return await auth.handler(c.req.raw);
+});
+
+app.route(API_BASE + "/schools", schools);
+
+app.onError(errorHandler);
+app.notFound(notFound);
+
+export default {
+  port,
+  fetch: app.fetch,
+};

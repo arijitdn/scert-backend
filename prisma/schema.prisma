@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProfileType {
+  SCHOOL
+  BLOCK
+  DISTRICT
+  STATE
+}
+
+enum RequisitionStatus {
+  PENDING
+  APPROVED
+  COMPLETED
+  REJECTED
+}
+
+model School {
+  id            String @id @default(cuid())
+  name          String
+  udise         BigInt @unique
+  category      String
+  block_code    Int
+  block_name    String
+  district      String
+  district_code Int
+  management    String
+  type          String
+
+  ClassEnrollment ClassEnrollment[]
+  Requisition     Requisition[]
+  Stock           Stock[]
+}
+
+model Book {
+  id            String   @id @default(cuid())
+  title         String
+  class         String
+  subject       String
+  category      String
+  rate          Float
+  academic_year String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  Requisition Requisition[]
+  Stock       Stock[]
+}
+
+model Profile {
+  id                       String      @id @default(cuid())
+  userId                   String      @unique
+  phone                    String      @unique
+  password                 String
+  blockISName              String?
+  schoolContactName        String?
+  schoolContactDesignation String?
+  schoolContactEmail       String?
+  type                     ProfileType
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+}
+
+model ClassEnrollment {
+  id        String   @id @default(cuid())
+  school_id String
+  class     String
+  students  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school School @relation(fields: [id], references: [id])
+}
+
+model Requisition {
+  id                String            @id @default(cuid())
+  reqId             String            @unique
+  schoolId          String
+  bookId            String
+  quantity          Int
+  received          Int
+  status            RequisitionStatus @default(PENDING)
+  remarksByBlock    String?
+  remarksByDistrict String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  school School @relation(fields: [schoolId], references: [id])
+  book   Book   @relation(fields: [bookId], references: [id])
+}
+
+model Stock {
+  id        String      @id @default(cuid())
+  bookId    String
+  userId    String
+  type      ProfileType
+  quantity  Int
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  school School @relation(fields: [userId], references: [id])
+  book   Book   @relation(fields: [bookId], references: [id])
+}
