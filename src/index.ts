@@ -8,6 +8,10 @@ import { errorHandler, notFound } from "./middlewares";
 import schools from "./routes/schools.route";
 import districts from "./routes/districts.route";
 import blocks from "./routes/blocks.route";
+import books from "./routes/books.route";
+import requisitions from "./routes/requisitions.route";
+import stock from "./routes/stock.route";
+import backlog from "./routes/backlog.route";
 import { auth } from "./config";
 
 const app = new Hono<{
@@ -48,6 +52,10 @@ app.all("/api/auth/*", async (c) => {
 app.route(API_BASE + "/schools", schools);
 app.route(API_BASE + "/districts", districts);
 app.route(API_BASE + "/blocks", blocks);
+app.route(API_BASE + "/books", books);
+app.route(API_BASE + "/requisitions", requisitions);
+app.route(API_BASE + "/stock", stock);
+app.route(API_BASE + "/backlog", backlog);
 
 app.onError(errorHandler);
 app.notFound(notFound);
