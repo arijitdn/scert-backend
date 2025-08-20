@@ -7,63 +7,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum ProfileType {
-  SCHOOL
-  BLOCK
-  DISTRICT
-  STATE
-}
-
-enum RequisitionStatus {
-  PENDING
-  APPROVED
-  COMPLETED
-  REJECTED
-}
-
-enum District {
-  DHALAI
-  GOMATI
-  KHOWAI
-  NORTH_TRIPURA
-  SEPAHIJALA
-  SOUTH_TRIPURA
-  UNAKOTI
-  WEST_TRIPURA
-}
-
 model School {
-  id            String @id @default(cuid())
-  name          String
-  udise         BigInt @unique
-  category      String
-  block_code    Int
-  block_name    String
-  district      String
-  district_code Int
-  management    String
-  type          String
-
-  Block           Block?            @relation(fields: [block_code], references: [code])
-  ClassEnrollment ClassEnrollment[]
+  id              String           @id @default(cuid())
+  name            String
+  udise           BigInt           @unique
+  category        String
+  block_code      Int
+  block_name      String
+  district        String
+  district_code   Int
+  management      String
+  type            String
+  ClassEnrollment ClassEnrollment?
   Requisition     Requisition[]
+  Block           Block            @relation(fields: [block_code], references: [code])
   Stock           Stock[]
 }
 
 model Book {
-  id            String   @id @default(cuid())
+  id            String         @id @default(cuid())
   title         String
   class         String
   subject       String
   category      String
   rate          Float
   academic_year String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  Requisition  Requisition[]
-  Stock        Stock[]
-  BacklogEntry BacklogEntry[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  BacklogEntry  BacklogEntry[]
+  Requisition   Requisition[]
+  Stock         Stock[]
 }
 
 model Profile {
@@ -87,22 +60,26 @@ model ClassEnrollment {
   students  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  school School @relation(fields: [id], references: [id])
+  school    School   @relation(fields: [id], references: [id])
 }
 
 model Requisition {
-  id                String            @id @default(cuid())
-  reqId             String            @unique
-  schoolId          String
-  bookId            String
-  quantity          Int
-  received          Int
-  status            RequisitionStatus @default(PENDING)
-  remarksByBlock    String?
-  remarksByDistrict String?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  id                   String            @id @default(cuid())
+  reqId                String            @unique
+  schoolId             String
+  bookId               String
+  quantity             Int
+  received             Int
+  status               RequisitionStatus @default(PENDING_BLOCK_APPROVAL)
+  remarksByBlock       String?
+  remarksByDistrict    String?
+  remarksByState       String?
+  approvedByBlockAt    DateTime?
+  approvedByDistrictAt DateTime?
+  approvedByStateAt    DateTime?
+  rejectedAt           DateTime?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
 
   school School @relation(fields: [schoolId], references: [id])
   book   Book   @relation(fields: [bookId], references: [id])
@@ -116,9 +93,8 @@ model Stock {
   quantity  Int
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
-
-  school School @relation(fields: [userId], references: [id])
-  book   Book   @relation(fields: [bookId], references: [id])
+  book      Book        @relation(fields: [bookId], references: [id])
+  school    School      @relation(fields: [userId], references: [id])
 }
 
 model Block {
@@ -139,8 +115,36 @@ model BacklogEntry {
   quantity  Int
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
-
-  book Book @relation(fields: [bookId], references: [id])
+  book      Book        @relation(fields: [bookId], references: [id])
 
   @@unique([bookId, type, userId])
+}
+
+enum ProfileType {
+  SCHOOL
+  BLOCK
+  DISTRICT
+  STATE
+}
+
+enum RequisitionStatus {
+  PENDING_BLOCK_APPROVAL
+  PENDING_DISTRICT_APPROVAL
+  PENDING_STATE_APPROVAL
+  APPROVED
+  COMPLETED
+  REJECTED_BY_BLOCK
+  REJECTED_BY_DISTRICT
+  REJECTED_BY_STATE
+}
+
+enum District {
+  DHALAI
+  GOMATI
+  KHOWAI
+  NORTH_TRIPURA
+  SEPAHIJALA
+  SOUTH_TRIPURA
+  UNAKOTI
+  WEST_TRIPURA
 }
