@@ -24,8 +24,8 @@ FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
-# Generate Prisma client
-RUN bun prisma generate
+# Generate Prisma client without database connection
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" bun prisma generate
 
 # [optional] tests & build
 ENV NODE_ENV=production
