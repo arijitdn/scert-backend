@@ -33,13 +33,10 @@ app.use(
 app.use(
   "*",
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://scert.arijit.dev",
-      "scert-frontend-wb8x.vercel.app",
-    ],
+    origin: "*",
     credentials: true,
-    maxAge: 86400,
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 
