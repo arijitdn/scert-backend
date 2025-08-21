@@ -33,10 +33,9 @@ app.use(
 app.use(
   "*",
   cors({
-    origin: "*",
+    origin: ["http://localhost:5173", "https://scert.arijit.dev"],
     credentials: true,
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    maxAge: 86400,
   })
 );
 
