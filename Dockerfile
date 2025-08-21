@@ -21,14 +21,18 @@ FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
+# Generate Prisma client
+RUN bun prisma generate
+
 # [optional] tests & build
 ENV NODE_ENV=production
 
 # copy production dependencies and source code into final image
 FROM base AS release
 COPY --from=install /temp/prod/node_modules node_modules
-COPY --from=prerelease /usr/src/app/src/index.ts .
+COPY --from=prerelease /usr/src/app/src ./src
 COPY --from=prerelease /usr/src/app/package.json .
+COPY --from=prerelease /usr/src/app/prisma ./prisma
 
 # run the app
 USER bun
