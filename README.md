@@ -5,6 +5,7 @@ Backend API for the SCERT (State Council of Educational Research and Training) p
 ## Features
 
 - **Multi-level Approval Workflow**: Requisitions follow a structured approval process: School → Block → District → State
+- **Books Received Tracking**: Comprehensive tracking of book deliveries with quantity management and fulfillment statistics
 - **User Authentication & Authorization**: Role-based access control for different administrative levels
 - **Book Management**: Comprehensive book catalog with category and subject classification
 - **Stock Management**: Real-time inventory tracking across all levels
@@ -26,6 +27,7 @@ The system implements a comprehensive approval workflow for book requisitions:
    - Rejected requisitions are marked as `REJECTED_BY_STATE`
 
 For detailed API documentation, see [MULTILEVEL_APPROVAL.md](./MULTILEVEL_APPROVAL.md).
+For frontend integration guide, see [BOOKS_RECEIVED_INTEGRATION.md](./BOOKS_RECEIVED_INTEGRATION.md).
 
 ## Quick Start
 
@@ -66,7 +68,7 @@ For detailed API documentation, see [MULTILEVEL_APPROVAL.md](./MULTILEVEL_APPROV
 - `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
 
-### Requisitions (Multi-level Approval)
+### Requisitions (Multi-level Approval & Books Received)
 
 - `GET /api/requisitions` - Get all requisitions
 - `POST /api/requisitions` - Create new requisition
@@ -78,6 +80,12 @@ For detailed API documentation, see [MULTILEVEL_APPROVAL.md](./MULTILEVEL_APPROV
 - `GET /api/requisitions/pending/block/:blockCode` - Get pending block requisitions
 - `GET /api/requisitions/pending/district/:district` - Get pending district requisitions
 - `GET /api/requisitions/pending/state` - Get pending state requisitions
+- `GET /api/requisitions/received/school/:schoolId` - Get received books for school
+- `GET /api/requisitions/received/block/:blockCode` - Get received books for block
+- `GET /api/requisitions/received/district/:district` - Get received books for district
+- `GET /api/requisitions/received/state` - Get all received books (state view)
+- `PUT /api/requisitions/:id/received` - Update received quantity
+- `GET /api/requisitions/stats/received` - Get received books statistics
 
 ### Schools, Books, Stock Management
 

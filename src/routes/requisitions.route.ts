@@ -13,6 +13,12 @@ import {
   getPendingDistrictRequisitions,
   getPendingStateRequisitions,
   getRequisitionTimeline,
+  getReceivedBooksBySchool,
+  getReceivedBooksByBlock,
+  getReceivedBooksByDistrict,
+  getReceivedBooksForState,
+  updateReceivedQuantity,
+  getReceivedBooksStats,
   approveRequisitionByBlock,
   rejectRequisitionByBlock,
   approveRequisitionByDistrict,
@@ -41,6 +47,18 @@ requisitions.get("/district/:district", getRequisitionsByDistrict);
 requisitions.get("/pending/block/:blockCode", getPendingBlockRequisitions);
 requisitions.get("/pending/district/:district", getPendingDistrictRequisitions);
 requisitions.get("/pending/state", getPendingStateRequisitions);
+
+// Get received books by level
+requisitions.get("/received/school/:schoolId", getReceivedBooksBySchool);
+requisitions.get("/received/block/:blockCode", getReceivedBooksByBlock);
+requisitions.get("/received/district/:district", getReceivedBooksByDistrict);
+requisitions.get("/received/state", getReceivedBooksForState);
+
+// Get received books statistics
+requisitions.get("/stats/received", getReceivedBooksStats);
+
+// Update received quantity
+requisitions.put("/:id/received", updateReceivedQuantity);
 
 // Block level approval endpoints
 requisitions.post("/:id/approve/block", approveRequisitionByBlock);

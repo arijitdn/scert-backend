@@ -1173,3 +1173,472 @@ export const getRequisitionTimeline = async (c: Context) => {
     );
   }
 };
+
+// Get received books summary for schools
+export const getReceivedBooksBySchool = async (c: Context) => {
+  try {
+    const schoolId = c.req.param("schoolId");
+
+    const requisitions = await db.requisition.findMany({
+      where: {
+        schoolId: schoolId,
+        received: {
+          gt: 0, // Only include requisitions with received books
+        },
+      },
+      include: {
+        book: true,
+        school: {
+          include: {
+            Block: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+
+    const formattedRequisitions = requisitions.map((req) => ({
+      id: req.id,
+      reqId: req.reqId,
+      bookId: req.bookId,
+      bookName: req.book.title,
+      class: req.book.class,
+      subject: req.book.subject,
+      category: req.book.category,
+      requisitioned: req.quantity,
+      received: req.received,
+      remaining: req.quantity - req.received,
+      status: req.status,
+      createdAt: req.createdAt,
+      updatedAt: req.updatedAt,
+      school: {
+        ...req.school,
+        udise: req.school.udise.toString(),
+      },
+    }));
+
+    return c.json({
+      success: true,
+      total: formattedRequisitions.length,
+      data: formattedRequisitions,
+    });
+  } catch (error) {
+    console.error("Error fetching received books by school:", error);
+    return c.json(
+      {
+        success: false,
+        error: "Failed to fetch received books",
+      },
+      500
+    );
+  }
+};
+
+// Get received books summary for blocks
+export const getReceivedBooksByBlock = async (c: Context) => {
+  try {
+    const blockCode = c.req.param("blockCode");
+
+    const requisitions = await db.requisition.findMany({
+      where: {
+        school: {
+          block_code: parseInt(blockCode),
+        },
+        received: {
+          gt: 0,
+        },
+      },
+      include: {
+        book: true,
+        school: {
+          include: {
+            Block: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+
+    const formattedRequisitions = requisitions.map((req) => ({
+      id: req.id,
+      reqId: req.reqId,
+      bookId: req.bookId,
+      bookName: req.book.title,
+      class: req.book.class,
+      subject: req.book.subject,
+      category: req.book.category,
+      requisitioned: req.quantity,
+      received: req.received,
+      remaining: req.quantity - req.received,
+      status: req.status,
+      createdAt: req.createdAt,
+      updatedAt: req.updatedAt,
+      school: {
+        id: req.school.id,
+        name: req.school.name,
+        udise: req.school.udise.toString(),
+        district: req.school.district,
+        block_name: req.school.block_name,
+      },
+    }));
+
+    return c.json({
+      success: true,
+      total: formattedRequisitions.length,
+      data: formattedRequisitions,
+    });
+  } catch (error) {
+    console.error("Error fetching received books by block:", error);
+    return c.json(
+      {
+        success: false,
+        error: "Failed to fetch received books",
+      },
+      500
+    );
+  }
+};
+
+// Get received books summary for districts
+export const getReceivedBooksByDistrict = async (c: Context) => {
+  try {
+    const district = c.req.param("district");
+
+    const requisitions = await db.requisition.findMany({
+      where: {
+        school: {
+          district: district,
+        },
+        received: {
+          gt: 0,
+        },
+      },
+      include: {
+        book: true,
+        school: {
+          include: {
+            Block: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+
+    const formattedRequisitions = requisitions.map((req) => ({
+      id: req.id,
+      reqId: req.reqId,
+      bookId: req.bookId,
+      bookName: req.book.title,
+      class: req.book.class,
+      subject: req.book.subject,
+      category: req.book.category,
+      requisitioned: req.quantity,
+      received: req.received,
+      remaining: req.quantity - req.received,
+      status: req.status,
+      createdAt: req.createdAt,
+      updatedAt: req.updatedAt,
+      school: {
+        id: req.school.id,
+        name: req.school.name,
+        udise: req.school.udise.toString(),
+        district: req.school.district,
+        block_name: req.school.block_name,
+      },
+    }));
+
+    return c.json({
+      success: true,
+      total: formattedRequisitions.length,
+      data: formattedRequisitions,
+    });
+  } catch (error) {
+    console.error("Error fetching received books by district:", error);
+    return c.json(
+      {
+        success: false,
+        error: "Failed to fetch received books",
+      },
+      500
+    );
+  }
+};
+
+// Get state level received books summary
+export const getReceivedBooksForState = async (c: Context) => {
+  try {
+    const requisitions = await db.requisition.findMany({
+      where: {
+        received: {
+          gt: 0,
+        },
+      },
+      include: {
+        book: true,
+        school: {
+          include: {
+            Block: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
+
+    const formattedRequisitions = requisitions.map((req) => ({
+      id: req.id,
+      reqId: req.reqId,
+      bookId: req.bookId,
+      bookName: req.book.title,
+      class: req.book.class,
+      subject: req.book.subject,
+      category: req.book.category,
+      requisitioned: req.quantity,
+      received: req.received,
+      remaining: req.quantity - req.received,
+      status: req.status,
+      createdAt: req.createdAt,
+      updatedAt: req.updatedAt,
+      school: {
+        id: req.school.id,
+        name: req.school.name,
+        udise: req.school.udise.toString(),
+        district: req.school.district,
+        block_name: req.school.block_name,
+      },
+    }));
+
+    return c.json({
+      success: true,
+      total: formattedRequisitions.length,
+      data: formattedRequisitions,
+    });
+  } catch (error) {
+    console.error("Error fetching received books for state:", error);
+    return c.json(
+      {
+        success: false,
+        error: "Failed to fetch received books",
+      },
+      500
+    );
+  }
+};
+
+// Update received quantity for a requisition
+export const updateReceivedQuantity = async (c: Context) => {
+  try {
+    const requisitionId = c.req.param("id");
+    const { received, remarks } = await c.req.json();
+
+    if (received === undefined || received < 0) {
+      return c.json(
+        {
+          success: false,
+          error: "Valid received quantity is required",
+        },
+        400
+      );
+    }
+
+    // Get current requisition
+    const existingRequisition = await db.requisition.findUnique({
+      where: { id: requisitionId },
+    });
+
+    if (!existingRequisition) {
+      return c.json(
+        {
+          success: false,
+          error: "Requisition not found",
+        },
+        404
+      );
+    }
+
+    // Validate that received quantity doesn't exceed requested quantity
+    if (received > existingRequisition.quantity) {
+      return c.json(
+        {
+          success: false,
+          error: "Received quantity cannot exceed requested quantity",
+        },
+        400
+      );
+    }
+
+    // Update requisition
+    const updateData: any = {
+      received: parseInt(received.toString()),
+    };
+
+    // Update status based on received quantity
+    if (received >= existingRequisition.quantity) {
+      updateData.status = "COMPLETED";
+    } else if (received > 0 && existingRequisition.status === "APPROVED") {
+      // Keep as APPROVED if partially received
+      updateData.status = "APPROVED";
+    }
+
+    // Add remarks if provided
+    if (remarks) {
+      updateData.remarksByState = remarks; // Assuming state level is updating this
+    }
+
+    const requisition = await db.requisition.update({
+      where: {
+        id: requisitionId,
+      },
+      data: updateData,
+      include: {
+        book: true,
+        school: {
+          include: {
+            Block: true,
+          },
+        },
+      },
+    });
+
+    const formattedRequisition = {
+      ...requisition,
+      school: {
+        ...requisition.school,
+        udise: requisition.school.udise.toString(),
+      },
+    };
+
+    return c.json({
+      success: true,
+      message: "Received quantity updated successfully",
+      data: formattedRequisition,
+    });
+  } catch (error) {
+    console.error("Error updating received quantity:", error);
+    return c.json(
+      {
+        success: false,
+        error: "Failed to update received quantity",
+      },
+      500
+    );
+  }
+};
+
+// Get aggregated received books statistics
+export const getReceivedBooksStats = async (c: Context) => {
+  try {
+    const { level, levelId } = c.req.query();
+
+    let whereClause: any = {
+      received: {
+        gt: 0,
+      },
+    };
+
+    // Add level-specific filtering
+    if (level && levelId) {
+      switch (level) {
+        case "school":
+          whereClause.schoolId = levelId;
+          break;
+        case "block":
+          whereClause.school = {
+            block_code: parseInt(levelId),
+          };
+          break;
+        case "district":
+          whereClause.school = {
+            district: levelId,
+          };
+          break;
+        // state level doesn't need additional filtering
+      }
+    }
+
+    // Get aggregated stats
+    const stats = await db.requisition.aggregate({
+      where: whereClause,
+      _sum: {
+        quantity: true,
+        received: true,
+      },
+      _count: {
+        id: true,
+      },
+    });
+
+    // Get book-wise breakdown
+    const bookStats = await db.requisition.groupBy({
+      by: ["bookId"],
+      where: whereClause,
+      _sum: {
+        quantity: true,
+        received: true,
+      },
+      _count: {
+        id: true,
+      },
+    });
+
+    // Get book details for the breakdown
+    const bookIds = bookStats.map((stat) => stat.bookId);
+    const books = await db.book.findMany({
+      where: {
+        id: {
+          in: bookIds,
+        },
+      },
+    });
+
+    const bookBreakdown = bookStats.map((stat) => {
+      const book = books.find((b) => b.id === stat.bookId);
+      return {
+        bookId: stat.bookId,
+        bookName: book?.title || "Unknown Book",
+        class: book?.class || "Unknown",
+        subject: book?.subject || "Unknown",
+        totalRequisitioned: stat._sum.quantity || 0,
+        totalReceived: stat._sum.received || 0,
+        requestCount: stat._count.id,
+        fulfillmentRate: stat._sum.quantity
+          ? (((stat._sum.received || 0) / stat._sum.quantity) * 100).toFixed(2)
+          : "0",
+      };
+    });
+
+    return c.json({
+      success: true,
+      data: {
+        summary: {
+          totalRequisitions: stats._count.id,
+          totalRequisitioned: stats._sum.quantity || 0,
+          totalReceived: stats._sum.received || 0,
+          overallFulfillmentRate: stats._sum.quantity
+            ? (
+                ((stats._sum.received || 0) / stats._sum.quantity) *
+                100
+              ).toFixed(2)
+            : "0",
+        },
+        bookBreakdown: bookBreakdown,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching received books stats:", error);
+    return c.json(
+      {
+        success: false,
+        error: "Failed to fetch received books statistics",
+      },
+      500
+    );
+  }
+};
