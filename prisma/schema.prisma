@@ -8,9 +8,9 @@ datasource db {
 }
 
 model School {
-  id              String           @id @default(cuid())
+  id              String            @id @default(cuid())
   name            String
-  udise           BigInt           @unique
+  udise           BigInt            @unique
   category        String
   block_code      Int
   block_name      String
@@ -18,10 +18,10 @@ model School {
   district_code   Int
   management      String
   type            String
-  ClassEnrollment ClassEnrollment?
+  ClassEnrollment ClassEnrollment[]
   Requisition     Requisition[]
-  Block           Block            @relation(fields: [block_code], references: [code])
-  Stock           Stock[]
+  Issue           Issue[]
+  Block           Block             @relation(fields: [block_code], references: [code])
 }
 
 model Book {
@@ -34,7 +34,7 @@ model Book {
   academic_year String
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-  BacklogEntry  BacklogEntry[]
+  EChallanBook  EChallanBook[]
   Requisition   Requisition[]
   Stock         Stock[]
 }
@@ -60,7 +60,7 @@ model ClassEnrollment {
   students  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  school    School   @relation(fields: [id], references: [id])
+  school    School   @relation(fields: [school_id], references: [id])
 }
 
 model Requisition {
@@ -73,16 +73,15 @@ model Requisition {
   status               RequisitionStatus @default(PENDING_BLOCK_APPROVAL)
   remarksByBlock       String?
   remarksByDistrict    String?
-  remarksByState       String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
   approvedByBlockAt    DateTime?
   approvedByDistrictAt DateTime?
   approvedByStateAt    DateTime?
   rejectedAt           DateTime?
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
-
-  school School @relation(fields: [schoolId], references: [id])
-  book   Book   @relation(fields: [bookId], references: [id])
+  remarksByState       String?
+  book                 Book              @relation(fields: [bookId], references: [id])
+  school               School            @relation(fields: [schoolId], references: [id])
 }
 
 model Stock {
@@ -94,7 +93,6 @@ model Stock {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   book      Book        @relation(fields: [bookId], references: [id])
-  school    School      @relation(fields: [userId], references: [id])
 }
 
 model Block {
@@ -107,17 +105,56 @@ model Block {
   schools  School[]
 }
 
-model BacklogEntry {
-  id        String      @id @default(cuid())
-  bookId    String
-  type      ProfileType
-  userId    String
-  quantity  Int
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  book      Book        @relation(fields: [bookId], references: [id])
+model EChallan {
+  id              String          @id @default(cuid())
+  challanId       String          @unique
+  challanNo       String
+  destinationType DestinationType
+  destinationName String
+  destinationId   String?
+  requisitionId   String
+  academicYear    String
+  vehicleNo       String?
+  agency          String?
+  totalBooks      Int             @default(0)
+  totalBoxes      Int             @default(0)
+  totalPackets    Int             @default(0)
+  totalLooseBoxes Int             @default(0)
+  status          EChallanStatus  @default(GENERATED)
+  generatedAt     DateTime        @default(now())
+  deliveredAt     DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  books           EChallanBook[]
+}
 
-  @@unique([bookId, type, userId])
+model EChallanBook {
+  id             String   @id @default(cuid())
+  eChallanId     String
+  bookId         String
+  className      String
+  subject        String
+  bookName       String
+  noOfBoxes      Int      @default(0)
+  noOfPackets    Int      @default(0)
+  noOfLooseBoxes Int      @default(0)
+  totalQuantity  Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  book           Book     @relation(fields: [bookId], references: [id])
+  eChallan       EChallan @relation(fields: [eChallanId], references: [id])
+}
+
+enum DestinationType {
+  DISTRICT
+  IS
+}
+
+enum EChallanStatus {
+  GENERATED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
 }
 
 enum ProfileType {
@@ -138,6 +175,46 @@ enum RequisitionStatus {
   REJECTED_BY_STATE
 }
 
+model Issue {
+  id                   String        @id @default(cuid())
+  issueId              String        @unique
+  title                String
+  description          String
+  priority             IssuePriority @default(MEDIUM)
+  status               IssueStatus   @default(PENDING_BLOCK_REVIEW)
+  schoolId             String
+  raisedBy             String
+  currentLevel         ProfileType   @default(BLOCK)
+  remarksByBlock       String?
+  remarksByDistrict    String?
+  remarksByState       String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  reviewedByBlockAt    DateTime?
+  reviewedByDistrictAt DateTime?
+  reviewedByStateAt    DateTime?
+  resolvedAt           DateTime?
+  rejectedAt           DateTime?
+  school               School        @relation(fields: [schoolId], references: [id])
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IssueStatus {
+  PENDING_BLOCK_REVIEW
+  PENDING_DISTRICT_REVIEW
+  PENDING_STATE_REVIEW
+  RESOLVED
+  REJECTED_BY_BLOCK
+  REJECTED_BY_DISTRICT
+  REJECTED_BY_STATE
+}
+
 enum District {
   DHALAI
   GOMATI
@@ -147,4 +224,66 @@ enum District {
   SOUTH_TRIPURA
   UNAKOTI
   WEST_TRIPURA
+}
+
+model Notification {
+  id             String               @id @default(cuid())
+  notificationId String               @unique
+  title          String
+  message        String
+  type           NotificationType     @default(INFO)
+  priority       NotificationPriority @default(MEDIUM)
+
+  // Sender information
+  sentBy   String
+  sentFrom ProfileType
+
+  // Target information - can be sent to multiple levels
+  targetSchools   Boolean @default(false)
+  targetBlocks    Boolean @default(false)
+  targetDistricts Boolean @default(false)
+  targetStates    Boolean @default(false)
+
+  // Specific targeting (optional)
+  specificSchoolIds     String[]
+  specificBlockCodes    Int[]
+  specificDistrictCodes Int[]
+
+  // Status and metadata
+  isActive  Boolean   @default(true)
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Read tracking
+  readBy NotificationRead[]
+}
+
+model NotificationRead {
+  id             String      @id @default(cuid())
+  notificationId String
+  userId         String
+  userLevel      ProfileType
+  readAt         DateTime    @default(now())
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
+}
+
+enum NotificationType {
+  STOCK_ARRIVAL
+  REQUISITION_STATUS
+  SYSTEM_UPDATE
+  URGENT_NOTICE
+  INFO
+  WARNING
+  MAINTENANCE
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }

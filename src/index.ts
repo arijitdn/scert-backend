@@ -11,7 +11,9 @@ import blocks from "./routes/blocks.route";
 import books from "./routes/books.route";
 import requisitions from "./routes/requisitions.route";
 import stock from "./routes/stock.route";
-import backlog from "./routes/backlog.route";
+import echallan from "./routes/echallan.route";
+import issues from "./routes/issues.route";
+import notifications from "./routes/notifications.route";
 import { auth } from "./config";
 
 const app = new Hono<{
@@ -62,7 +64,9 @@ app.route(API_BASE + "/blocks", blocks);
 app.route(API_BASE + "/books", books);
 app.route(API_BASE + "/requisitions", requisitions);
 app.route(API_BASE + "/stock", stock);
-app.route(API_BASE + "/backlog", backlog);
+app.route(API_BASE + "/echallans", echallan);
+app.route(API_BASE + "/issues", issues);
+app.route(API_BASE + "/notifications", notifications);
 
 app.onError(errorHandler);
 app.notFound(notFound);

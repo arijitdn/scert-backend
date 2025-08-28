@@ -21,31 +21,16 @@ export const getAllStock = async (c: Context) => {
       where: whereClause,
       include: {
         book: true,
-        school: {
-          include: {
-            Block: true,
-          },
-        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    const formattedStock = stock.map((item) => ({
-      ...item,
-      school: item.school
-        ? {
-            ...item.school,
-            udise: item.school.udise.toString(),
-          }
-        : null,
-    }));
-
     return c.json({
       success: true,
-      total: formattedStock.length,
-      data: formattedStock,
+      total: stock.length,
+      data: stock,
     });
   } catch (error) {
     console.error("Error fetching stock:", error);
@@ -69,11 +54,6 @@ export const getStockById = async (c: Context) => {
       },
       include: {
         book: true,
-        school: {
-          include: {
-            Block: true,
-          },
-        },
       },
     });
 
@@ -87,19 +67,9 @@ export const getStockById = async (c: Context) => {
       );
     }
 
-    const formattedStock = {
-      ...stock,
-      school: stock.school
-        ? {
-            ...stock.school,
-            udise: stock.school.udise.toString(),
-          }
-        : null,
-    };
-
     return c.json({
       success: true,
-      data: formattedStock,
+      data: stock,
     });
   } catch (error) {
     console.error("Error fetching stock item:", error);
@@ -136,28 +106,13 @@ export const createStock = async (c: Context) => {
       },
       include: {
         book: true,
-        school: {
-          include: {
-            Block: true,
-          },
-        },
       },
     });
-
-    const formattedStock = {
-      ...stock,
-      school: stock.school
-        ? {
-            ...stock.school,
-            udise: stock.school.udise.toString(),
-          }
-        : null,
-    };
 
     return c.json({
       success: true,
       message: "Stock created successfully",
-      data: formattedStock,
+      data: stock,
     });
   } catch (error) {
     console.error("Error creating stock:", error);
@@ -195,28 +150,13 @@ export const updateStock = async (c: Context) => {
       },
       include: {
         book: true,
-        school: {
-          include: {
-            Block: true,
-          },
-        },
       },
     });
-
-    const formattedStock = {
-      ...stock,
-      school: stock.school
-        ? {
-            ...stock.school,
-            udise: stock.school.udise.toString(),
-          }
-        : null,
-    };
 
     return c.json({
       success: true,
       message: "Stock updated successfully",
-      data: formattedStock,
+      data: stock,
     });
   } catch (error) {
     console.error("Error updating stock:", error);
@@ -289,40 +229,25 @@ export const getStateStock = async (c: Context) => {
 
 export const getStockBySchool = async (c: Context) => {
   try {
-    const schoolId = c.req.param("schoolId");
+    const schoolUdise = c.req.param("schoolUdise");
 
     const stock = await db.stock.findMany({
       where: {
-        userId: schoolId,
+        userId: schoolUdise,
         type: "SCHOOL",
       },
       include: {
         book: true,
-        school: {
-          include: {
-            Block: true,
-          },
-        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    const formattedStock = stock.map((item) => ({
-      ...item,
-      school: item.school
-        ? {
-            ...item.school,
-            udise: item.school.udise.toString(),
-          }
-        : null,
-    }));
-
     return c.json({
       success: true,
-      total: formattedStock.length,
-      data: formattedStock,
+      total: stock.length,
+      data: stock,
     });
   } catch (error) {
     console.error("Error fetching school stock:", error);
