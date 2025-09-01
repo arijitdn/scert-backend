@@ -7,6 +7,7 @@ import {
   updateBook,
   deleteBook,
   searchBooks,
+  toggleBookStatus,
 } from "../controllers";
 import { isState } from "../middlewares";
 
@@ -17,6 +18,7 @@ books.get("/search", searchBooks);
 books.get("/:id", getBookById);
 books.post("/", createBook);
 books.put("/:id", updateBook);
+books.patch("/:id/toggle-status", toggleBookStatus);
 books.delete("/:id", deleteBook);
 
 export default books;

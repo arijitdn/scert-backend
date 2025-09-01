@@ -8,6 +8,7 @@ export const getAllBooks = async (c: Context) => {
     const subjectParam = c.req.query("subject");
     const categoryParam = c.req.query("category");
     const academicYearParam = c.req.query("academic_year");
+    const enabledOnlyParam = c.req.query("enabled_only");
 
     let whereClause: any = {};
 
@@ -25,6 +26,11 @@ export const getAllBooks = async (c: Context) => {
 
     if (academicYearParam) {
       whereClause.academic_year = academicYearParam;
+    }
+
+    // Filter by enabled status if requested
+    if (enabledOnlyParam === "true") {
+      whereClause.is_enabled = true;
     }
 
     const books = await db.book.findMany({
@@ -247,6 +253,56 @@ export const searchBooks = async (c: Context) => {
       {
         success: false,
         error: "Failed to search books",
+      },
+      500
+    );
+  }
+};
+
+export const toggleBookStatus = async (c: Context) => {
+  try {
+    const bookId = c.req.param("id");
+
+    // First get the current book to check its status
+    const currentBook = await db.book.findUnique({
+      where: {
+        id: bookId,
+      },
+    });
+
+    if (!currentBook) {
+      return c.json(
+        {
+          success: false,
+          error: "Book not found",
+        },
+        404
+      );
+    }
+
+    // Toggle the is_enabled status
+    const updatedBook = await db.book.update({
+      where: {
+        id: bookId,
+      },
+      data: {
+        is_enabled: !currentBook.is_enabled,
+      },
+    });
+
+    return c.json({
+      success: true,
+      message: `Book ${
+        updatedBook.is_enabled ? "enabled" : "disabled"
+      } successfully`,
+      data: updatedBook,
+    });
+  } catch (error) {
+    console.error("Error toggling book status:", error);
+    return c.json(
+      {
+        success: false,
+        error: "Failed to toggle book status",
       },
       500
     );
