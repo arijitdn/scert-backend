@@ -3,6 +3,7 @@ export * from "./districts.controller";
 export * from "./blocks.controller";
 export * from "./books.controller";
 export * from "./requisitions.controller";
+export * from "./requisition-window.controller";
 export * from "./stock.controller";
 export * from "./echallan.controller";
 export * from "./issues.controller";

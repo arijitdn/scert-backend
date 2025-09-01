@@ -290,3 +290,15 @@ enum NotificationPriority {
   HIGH
   URGENT
 }
+
+model RequisitionWindow {
+  id        String      @id @default(cuid())
+  type      ProfileType
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([type])
+}

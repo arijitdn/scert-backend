@@ -3,6 +3,7 @@ export * from "./districts.route";
 export * from "./blocks.route";
 export * from "./books.route";
 export * from "./requisitions.route";
+export * from "./requisition-window.route";
 export * from "./stock.route";
 export * from "./echallan.route";
 export * from "./issues.route";
