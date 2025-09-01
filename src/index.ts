@@ -14,6 +14,7 @@ import stock from "./routes/stock.route";
 import echallan from "./routes/echallan.route";
 import issues from "./routes/issues.route";
 import notifications from "./routes/notifications.route";
+import reports from "./routes/reports.route";
 import { auth } from "./config";
 
 const app = new Hono<{
@@ -67,6 +68,7 @@ app.route(API_BASE + "/stock", stock);
 app.route(API_BASE + "/echallans", echallan);
 app.route(API_BASE + "/issues", issues);
 app.route(API_BASE + "/notifications", notifications);
+app.route(API_BASE + "/reports", reports);
 
 app.onError(errorHandler);
 app.notFound(notFound);

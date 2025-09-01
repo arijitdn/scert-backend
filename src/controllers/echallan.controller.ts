@@ -113,6 +113,10 @@ export const createEChallan = async (c: Context) => {
 
     // Calculate totals
     const totalBooks = books.length;
+    const totalBookQuantity = books.reduce(
+      (sum: number, book: any) => sum + (parseInt(book.noOfBooks) || 0),
+      0
+    );
     const totalBoxes = books.reduce(
       (sum: number, book: any) => sum + (parseInt(book.noOfBoxes) || 0),
       0
@@ -148,6 +152,7 @@ export const createEChallan = async (c: Context) => {
             className: book.className,
             subject: book.subject,
             bookName: book.bookName,
+            noOfBooks: parseInt(book.noOfBooks) || 0,
             noOfBoxes: parseInt(book.noOfBoxes) || 0,
             noOfPackets: parseInt(book.noOfPackets) || 0,
             noOfLooseBoxes: parseInt(book.noOfLooseBoxes) || 0,

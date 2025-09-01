@@ -7,3 +7,4 @@ export * from "./stock.controller";
 export * from "./echallan.controller";
 export * from "./issues.controller";
 export * from "./notifications.controller";
+export * from "./reports.controller";

@@ -135,6 +135,7 @@ model EChallanBook {
   className      String
   subject        String
   bookName       String
+  noOfBooks      Int      @default(0)
   noOfBoxes      Int      @default(0)
   noOfPackets    Int      @default(0)
   noOfLooseBoxes Int      @default(0)

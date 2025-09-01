@@ -7,3 +7,4 @@ export * from "./stock.route";
 export * from "./echallan.route";
 export * from "./issues.route";
 export * from "./notifications.route";
+export * from "./reports.route";
