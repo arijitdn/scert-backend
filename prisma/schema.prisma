@@ -33,6 +33,7 @@ model Book {
   rate          Float
   academic_year String
   is_enabled    Boolean        @default(true)
+  comment       String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   EChallanBook  EChallanBook[]

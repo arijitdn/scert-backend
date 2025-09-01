@@ -308,3 +308,74 @@ export const toggleBookStatus = async (c: Context) => {
     );
   }
 };
+
+export const addCommentToBook = async (c: Context) => {
+  try {
+    const bookId = c.req.param("id");
+    const { comment } = await c.req.json();
+
+    if (!comment || comment.trim() === "") {
+      return c.json(
+        {
+          success: false,
+          error: "Comment is required",
+        },
+        400
+      );
+    }
+
+    // First check if the book exists
+    const currentBook = await db.book.findUnique({
+      where: {
+        id: bookId,
+      },
+    });
+
+    if (!currentBook) {
+      return c.json(
+        {
+          success: false,
+          error: "Book not found",
+        },
+        404
+      );
+    }
+
+    // Check if book already has a comment
+    if (currentBook.comment) {
+      return c.json(
+        {
+          success: false,
+          error:
+            "Book already has a comment. Comments cannot be edited or deleted.",
+        },
+        400
+      );
+    }
+
+    // Add the comment
+    const updatedBook = await db.book.update({
+      where: {
+        id: bookId,
+      },
+      data: {
+        comment: comment.trim(),
+      },
+    });
+
+    return c.json({
+      success: true,
+      message: "Comment added successfully",
+      data: updatedBook,
+    });
+  } catch (error) {
+    console.error("Error adding comment to book:", error);
+    return c.json(
+      {
+        success: false,
+        error: "Failed to add comment",
+      },
+      500
+    );
+  }
+};
